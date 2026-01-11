@@ -2,11 +2,11 @@
 const MERCH_EMAIL = "bmbgsa.ubc@gmail.com"; // <-- change to your real email
 
 function buildMailto(subject, body) {
-  const params = new URLSearchParams({
-    subject,
-    body,
-  });
-  return `mailto:${MERCH_EMAIL}?${params.toString()}`;
+  return (
+    `mailto:${MERCH_EMAIL}` +
+    `?subject=${encodeURIComponent(subject)}` +
+    `&body=${encodeURIComponent(body)}`
+  );
 }
 
 function defaultOrderTemplate(itemName = "") {
