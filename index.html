@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BMB-GSA Merch</title>
+  <meta name="description" content="BMB-GSA departmental merchandise. Email us your order and we’ll follow up with payment details." />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="#top" aria-label="BMB-GSA Merch Home">
+        <span class="brand-mark">BMB</span>
+        <span class="brand-text">BMB-GSA Merch</span>
+      </a>
+
+      <nav class="nav">
+        <a href="#how">How to order</a>
+        <a href="#merch">Merch</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+
+      <div class="header-cta">
+        <a class="btn btn-primary" id="emailOrderBtn" href="#">
+          Email to Order
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <h1>BMB-GSA Departmental Merch</h1>
+          <p class="lead">
+            Simple ordering: send us an email with what you want, and we’ll reply with payment + pickup details.
+          </p>
+
+          <div class="hero-actions">
+            <a class="btn btn-primary" id="emailOrderBtn2" href="#">Email to Order</a>
+            <button class="btn btn-ghost" id="copyEmailBtn" type="button">Copy email</button>
+          </div>
+
+          <p class="micro">
+            Email: <span class="mono" id="merchEmailText">bmbgsa@yourdomain.com</span>
+          </p>
+
+          <div class="notice">
+            <strong>Heads up:</strong> availability can change quickly. We’ll confirm stock and totals when you email.
+          </div>
+        </div>
+
+        <div class="hero-card">
+          <h2 class="card-title">Order in 30 seconds</h2>
+          <ol class="steps">
+            <li>Pick items + sizes below</li>
+            <li>Hit “Email to Order” (pre-fills a template)</li>
+            <li>We reply with payment + pickup/delivery options</li>
+          </ol>
+          <a class="btn btn-secondary" href="#merch">Browse merch ↓</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW -->
+    <section id="how" class="section">
+      <div class="container">
+        <h2>How ordering works</h2>
+        <div class="two-col">
+          <div class="panel">
+            <h3>1) Email your order</h3>
+            <p>
+              Tell us the item name(s), size(s), quantity, and your preferred pickup method.
+            </p>
+          </div>
+          <div class="panel">
+            <h3>2) We confirm payment</h3>
+            <p>
+              We’ll reply with your total and payment instructions, then confirm once paid.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MERCH -->
+    <section id="merch" class="section section-alt">
+      <div class="container">
+        <div class="section-head">
+          <h2>Merch</h2>
+          <p class="sub">
+            Scroll down: photos on the left, sizes/pricing/availability on the right.
+          </p>
+        </div>
+
+        <!-- ITEM 1 -->
+        <article class="merch-item" id="hoodie">
+          <div class="merch-photo">
+            <img src="assets/hoodie.jpg" alt="BMB-GSA hoodie" loading="lazy" />
+          </div>
+          <div class="merch-info">
+            <div class="merch-top">
+              <h3>Classic Hoodie</h3>
+              <span class="badge in-stock">In stock</span>
+            </div>
+            <p class="desc">Cozy midweight hoodie with subtle BMB branding. Great for lab nights and Vancouver rain.</p>
+
+            <div class="grid">
+              <div>
+                <h4>Price</h4>
+                <p class="price">$45 CAD</p>
+              </div>
+              <div>
+                <h4>Sizes</h4>
+                <p>S, M, L, XL, XXL</p>
+              </div>
+              <div>
+                <h4>Colors</h4>
+                <p>Black, Heather Grey</p>
+              </div>
+              <div>
+                <h4>Availability</h4>
+                <p class="mono">S: 6 · M: 10 · L: 8 · XL: 4 · XXL: 2</p>
+              </div>
+            </div>
+
+            <div class="merch-actions">
+              <button class="btn btn-primary order-btn" data-item="Classic Hoodie" data-price="45" type="button">
+                Order this item
+              </button>
+              <a class="btn btn-ghost" href="#faq">Questions?</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- ITEM 2 -->
+        <article class="merch-item" id="tee">
+          <div class="merch-photo">
+            <img src="assets/tee.jpg" alt="BMB-GSA t-shirt" loading="lazy" />
+          </div>
+          <div class="merch-info">
+            <div class="merch-top">
+              <h3>Essential T-Shirt</h3>
+              <span class="badge low-stock">Low stock</span>
+            </div>
+            <p class="desc">Soft, simple tee with clean front mark. Easy everyday fit.</p>
+
+            <div class="grid">
+              <div>
+                <h4>Price</h4>
+                <p class="price">$25 CAD</p>
+              </div>
+              <div>
+                <h4>Sizes</h4>
+                <p>XS, S, M, L, XL</p>
+              </div>
+              <div>
+                <h4>Colors</h4>
+                <p>White, Black</p>
+              </div>
+              <div>
+                <h4>Availability</h4>
+                <p class="mono">XS: 2 · S: 3 · M: 5 · L: 2 · XL: 1</p>
+              </div>
+            </div>
+
+            <div class="merch-actions">
+              <button class="btn btn-primary order-btn" data-item="Essential T-Shirt" data-price="25" type="button">
+                Order this item
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <!-- ITEM 3 -->
+        <article class="merch-item" id="tote">
+          <div class="merch-photo">
+            <img src="assets/tote.jpg" alt="BMB-GSA tote bag" loading="lazy" />
+          </div>
+          <div class="merch-info">
+            <div class="merch-top">
+              <h3>Tote Bag</h3>
+              <span class="badge out-stock">Pre-order</span>
+            </div>
+            <p class="desc">Sturdy tote for groceries, gym stuff, or smuggling snacks into seminars.</p>
+
+            <div class="grid">
+              <div>
+                <h4>Price</h4>
+                <p class="price">$15 CAD</p>
+              </div>
+              <div>
+                <h4>Sizes</h4>
+                <p>One size</p>
+              </div>
+              <div>
+                <h4>Colors</h4>
+                <p>Natural Canvas</p>
+              </div>
+              <div>
+                <h4>Availability</h4>
+                <p>Pre-order only — delivery date confirmed by email.</p>
+              </div>
+            </div>
+
+            <div class="merch-actions">
+              <button class="btn btn-primary order-btn" data-item="Tote Bag" data-price="15" type="button">
+                Pre-order
+              </button>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="section">
+      <div class="container">
+        <h2>FAQ</h2>
+
+        <details class="faq">
+          <summary>How do I pay?</summary>
+          <p>We’ll email you payment instructions after confirming your order (e.g., e-transfer or whatever your GSA uses).</p>
+        </details>
+
+        <details class="faq">
+          <summary>Where do I pick it up?</summary>
+          <p>Pickup options are shared in our reply (usually on campus). If you need alternatives, mention it in your email.</p>
+        </details>
+
+        <details class="faq">
+          <summary>Can I return or exchange?</summary>
+          <p>Sizes can usually be exchanged if stock allows. We’ll sort it out case-by-case—just email us.</p>
+        </details>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <p class="small">
+          © <span id="year"></span> BMB-GSA. Built for GitHub Pages.
+        </p>
+        <a class="small" href="#top">Back to top ↑</a>
+      </div>
+    </footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
