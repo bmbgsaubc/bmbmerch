@@ -1,5 +1,5 @@
 // ====== Configure this email ======
-const MERCH_EMAIL = "bmbgsa@yourdomain.com"; // <-- change to your real email
+const MERCH_EMAIL = "bmbgsa.ubc@gmail.com"; // <-- change to your real email
 
 function buildMailto(subject, body) {
   const params = new URLSearchParams({
