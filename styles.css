@@ -326,7 +326,7 @@ h2{
 .btn:active{ transform: translateY(0px); }
 
 .btn-primary{
-  background: linear-gradient(135deg, rgba(0,167,225), rgba(218,193,129,0.85));
+  background: linear-gradient(135deg, rgba(0,167,225), rgba(151,212,233,0.85));
   border-color: rgba(0,33,69,0.20);
   color: #06121a;
 }
