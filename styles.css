@@ -227,12 +227,12 @@ h2{
   overflow:hidden;
   border: 1px solid rgba(255,255,255,0.08);
   background: rgba(0,0,0,0.25);
-  min-height: 220px;
+  min-height: 100px;
 }
 
 .merch-photo img{
-  width:100%;
-  height:100%;
+  width:80%;
+  height:80%;
   object-fit: cover;
 }
 
