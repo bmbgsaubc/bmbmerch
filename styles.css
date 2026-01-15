@@ -14,8 +14,8 @@ html{ scroll-behavior:smooth; }
 body{
   margin:0;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-  background: radial-gradient(1200px 800px at 20% -10%, rgba(0, 85, 183, 0.25), transparent 60%),
-              radial-gradient(1200px 800px at 90% 10%, rgba(151, 212, 233, 0.18), transparent 55%),
+  background: radial-gradient(1200px 800px at 20% -10%, rgba(0, 85, 183, 0.555), transparent 60%),
+              radial-gradient(1200px 800px at 90% 10%, rgba(151, 213, 233, 0.5), transparent 55%),
               var(--bg);
   color:var(--text);
   line-height:1.55;
@@ -295,6 +295,11 @@ h2{
   border-radius: 999px;
   border: 1px solid rgba(255,255,255,0.12);
   color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  flex: 0 0 auto;
+  line-height: 1;
 }
 
 .in-stock{ background: rgba(16,185,129,0.12); color: #a7f3d0; }
@@ -386,5 +391,8 @@ h2{
   .two-col{ grid-template-columns: 1fr; }
   .merch-item{ grid-template-columns: 1fr; }
   .grid{ grid-template-columns: 1fr; }
-  .merch-photo{ min-height: 200px; }
+  .merch-photo{
+    min-height: 200px;
+    aspect-ratio: 4 / 3;
+  }
 }
