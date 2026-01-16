@@ -102,6 +102,39 @@ function wireQuantityControls() {
   });
 }
 
+function wireCarouselDots() {
+  document.querySelectorAll(".merch-photo").forEach((photo) => {
+    const track = photo.querySelector(".carousel-track");
+    const dots = photo.querySelectorAll(".carousel-dot");
+    if (!track || dots.length === 0) return;
+
+    let ticking = false;
+    const update = () => {
+      const width = track.clientWidth || 1;
+      const index = Math.round(track.scrollLeft / width);
+      dots.forEach((dot, i) => {
+        dot.classList.toggle("is-active", i === index);
+      });
+    };
+
+    track.addEventListener(
+      "scroll",
+      () => {
+        if (ticking) return;
+        ticking = true;
+        window.requestAnimationFrame(() => {
+          update();
+          ticking = false;
+        });
+      },
+      { passive: true }
+    );
+
+    window.addEventListener("resize", update);
+    update();
+  });
+}
+
 function wireCopyEmail() {
   const copyBtn = document.getElementById("copyEmailBtn");
   if (!copyBtn) return;
@@ -128,5 +161,6 @@ setEmailLinks();
 wireOrderButtons();
 wireSizeOptions();
 wireQuantityControls();
+wireCarouselDots();
 wireCopyEmail();
 setYear();
