@@ -334,6 +334,7 @@ h2{
   background: linear-gradient(135deg, rgba(0,167,225), rgba(151,212,233,0.85));
   border-color: rgba(0,33,69,0.20);
   color: #06121a;
+  font-size: 14px;
 }
 
 .btn-secondary{
@@ -394,5 +395,9 @@ h2{
   .merch-photo{
     min-height: 200px;
     aspect-ratio: 4 / 3;
+  }
+  .badge.in-stock{
+    font-size: 12px;
+    padding: 6px 10px;
   }
 }
