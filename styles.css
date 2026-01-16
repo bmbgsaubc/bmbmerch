@@ -269,13 +269,13 @@ h2{
   width: 6px;
   height: 6px;
   border-radius: 999px;
-  background: rgba(255,255,255,0.65);
+  background: rgba(90,90,90,0.9);
   transition: transform 160ms ease, background 160ms ease;
 }
 
 .carousel-dot.is-active{
   transform: scale(1.4);
-  background: rgba(255,255,255,0.95);
+  background: rgba(120,120,120,0.95);
 }
 
 .merch-top{
