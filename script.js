@@ -9,14 +9,14 @@ function buildMailto(subject, body) {
   );
 }
 
-function defaultOrderTemplate(itemName = "", size = "") {
+function defaultOrderTemplate(itemName = "", size = "", quantity = "") {
   return [
     "Hi BMB-GSA,",
     "",
     "I’d like to place an order for:",
     itemName ? `- Item: ${itemName}` : "- Item(s):",
     size ? `- Size(s): ${size}` : "- Size(s):",
-    "- Quantity:",
+    quantity ? `- Quantity: ${quantity}` : "- Quantity:",
     "",
     "Pickup preference:",
     "- (e.g., on-campus pickup / delivery / flexible)",
@@ -48,10 +48,12 @@ function wireOrderButtons() {
       const itemEl = btn.closest(".merch-item");
       const selectedSize = itemEl ? itemEl.querySelector(".size-option.is-selected") : null;
       const size = selectedSize ? selectedSize.dataset.size : "";
+      const qtyEl = itemEl ? itemEl.querySelector(".quantity-value") : null;
+      const quantity = qtyEl ? qtyEl.textContent.trim() : "";
       const item = btn.dataset.item || "Merch item";
       const price = btn.dataset.price ? `$${btn.dataset.price} CAD` : "";
       const subject = `BMB-GSA Merch Order — ${item}`;
-      const body = defaultOrderTemplate(`${item}${price ? ` (${price})` : ""}`, size);
+      const body = defaultOrderTemplate(`${item}${price ? ` (${price})` : ""}`, size, quantity);
       window.location.href = buildMailto(subject, body);
     });
   });
@@ -72,6 +74,30 @@ function wireSizeOptions() {
         btn.classList.add("is-selected");
         btn.setAttribute("aria-pressed", "true");
       }
+    });
+  });
+}
+
+function wireQuantityControls() {
+  document.querySelectorAll(".quantity-control").forEach((control) => {
+    const valueEl = control.querySelector(".quantity-value");
+    const decreaseBtn = control.querySelector('[data-qty-action="decrease"]');
+    const increaseBtn = control.querySelector('[data-qty-action="increase"]');
+    if (!valueEl || !decreaseBtn || !increaseBtn) return;
+
+    const updateValue = (next) => {
+      const clamped = Math.max(1, next);
+      valueEl.textContent = String(clamped);
+    };
+
+    decreaseBtn.addEventListener("click", () => {
+      const current = parseInt(valueEl.textContent, 10) || 1;
+      updateValue(current - 1);
+    });
+
+    increaseBtn.addEventListener("click", () => {
+      const current = parseInt(valueEl.textContent, 10) || 1;
+      updateValue(current + 1);
     });
   });
 }
@@ -101,5 +127,6 @@ function setYear() {
 setEmailLinks();
 wireOrderButtons();
 wireSizeOptions();
+wireQuantityControls();
 wireCopyEmail();
 setYear();
