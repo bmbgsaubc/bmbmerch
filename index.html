@@ -28,7 +28,13 @@
       <div class="header-cta">
         <div class="cart" id="cart">
           <button class="cart-toggle" id="cartToggle" type="button" aria-expanded="false">
-            <span class="cart-label">Cart</span>
+            <span class="sr-only">Cart</span>
+            <svg class="cart-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M7 6h14l-2 8H9L7 6Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+              <path d="M3 4h2l2 10h12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              <circle cx="10" cy="19" r="1.6" fill="currentColor"/>
+              <circle cx="18" cy="19" r="1.6" fill="currentColor"/>
+            </svg>
             <span class="cart-count" id="cartCount">0</span>
           </button>
           <div class="cart-panel" id="cartPanel" role="dialog" aria-label="Cart">
@@ -117,7 +123,6 @@
                   <button class="size-option" type="button" data-size="M">M</button>
                   <button class="size-option" type="button" data-size="L">L</button>
                   <button class="size-option" type="button" data-size="XL">XL</button>
-                  <button class="size-option" type="button" data-size="XXL">XXL</button>
                 </div>
               </div>
               <div>
@@ -126,7 +131,7 @@
               </div>
               <div>
                 <h4>Availability</h4>
-                <p class="mono">S: 6 · M: 10 · L: 8 · XL: 4 · XXL: 2</p>
+                <p class="mono">S: 6 · M: 10 · L: 8 · XL: 3</p>
               </div>
             </div>
 
@@ -158,7 +163,7 @@
           <div class="merch-info">
             <div class="merch-top">
               <h3>White T-Shirt w/ Alternate Logo</h3>
-              <span class="badge low-stock">Low stock</span>
+              <span class="badge in-stock">In stock</span>
             </div>
             <p class="desc">Soft, simple tee with clean front mark. Easy everyday fit.</p>
 
@@ -170,7 +175,6 @@
               <div>
                 <h4>Sizes</h4>
                 <div class="size-options">
-                  <button class="size-option" type="button" data-size="XS">XS</button>
                   <button class="size-option" type="button" data-size="S">S</button>
                   <button class="size-option" type="button" data-size="M">M</button>
                   <button class="size-option" type="button" data-size="L">L</button>
@@ -183,7 +187,7 @@
               </div>
               <div>
                 <h4>Availability</h4>
-                <p class="mono">XS: 2 · S: 3 · M: 5 · L: 2 · XL: 1</p>
+                <p class="mono">S: 6 · M: 9 · L: 9 · XL: 3</p>
               </div>
             </div>
 
@@ -215,7 +219,7 @@
           <div class="merch-info">
             <div class="merch-top">
               <h3>Beige T-Shirt w/ Alternate Logo</h3>
-              <span class="badge low-stock">Low stock</span>
+              <span class="badge in-stock">In stock</span>
             </div>
             <p class="desc">Soft, simple tee with clean front mark. Easy everyday fit.</p>
 
@@ -227,7 +231,6 @@
               <div>
                 <h4>Sizes</h4>
                 <div class="size-options">
-                  <button class="size-option" type="button" data-size="XS">XS</button>
                   <button class="size-option" type="button" data-size="S">S</button>
                   <button class="size-option" type="button" data-size="M">M</button>
                   <button class="size-option" type="button" data-size="L">L</button>
@@ -240,7 +243,7 @@
               </div>
               <div>
                 <h4>Availability</h4>
-                <p class="mono">XS: 2 · S: 3 · M: 5 · L: 2 · XL: 1</p>
+                <p class="mono">S: 6 · M: 9 · L: 9 · XL: 3</p>
               </div>
             </div>
 
@@ -272,28 +275,31 @@
           <div class="merch-info">
             <div class="merch-top">
               <h3>Tote Bag</h3>
-              <span class="badge out-stock">Pre-order</span>
+              <span class="badge in-stock">In stock</span>
             </div>
-            <p class="desc">Sturdy tote for groceries, gym stuff, or smuggling snacks into seminars.</p>
+            <p class="desc">Black Tee with white and gold logo</p>
 
             <div class="grid">
               <div>
                 <h4>Price</h4>
-                <p class="price">$15 CAD</p>
+                <p class="price">$10 CAD</p>
               </div>
               <div>
                 <h4>Sizes</h4>
                 <div class="size-options">
-                  <button class="size-option" type="button" data-size="One size">One size</button>
+                  <button class="size-option" type="button" data-size="S">S</button>
+                  <button class="size-option" type="button" data-size="M">M</button>
+                  <button class="size-option" type="button" data-size="L">L</button>
+                  <button class="size-option" type="button" data-size="XL">XL</button>
                 </div>
               </div>
               <div>
                 <h4>Colors</h4>
-                <p>Natural Canvas</p>
+                <p>Black/Gold</p>
               </div>
               <div>
                 <h4>Availability</h4>
-                <p>Pre-order only — delivery date confirmed by email.</p>
+                <p class="mono">S: 6 · M: 9 · L: 9 · XL: 3</p>
               </div>
             </div>
 
@@ -303,7 +309,7 @@
                 <span class="quantity-value" aria-live="polite">1</span>
                 <button class="qty-btn" type="button" data-qty-action="increase" aria-label="Increase quantity">+</button>
               </div>
-              <button class="btn btn-primary order-btn" data-item="Tote Bag" data-price="15" type="button">
+              <button class="btn btn-primary order-btn" data-item="Tote Bag" data-price="10" type="button">
                 Add to Cart
               </button>
             </div>
