@@ -1,5 +1,6 @@
 // ====== Configure this email ======
 const MERCH_EMAIL = "bmbgsa.ubc@gmail.com"; // <-- change to your real email
+const cart = new Map();
 
 function buildMailto(subject, body) {
   return (
@@ -28,9 +29,44 @@ function defaultOrderTemplate(itemName = "", size = "", quantity = "") {
   ].join("\n");
 }
 
-function setEmailLinks() {
+function formatPrice(amount) {
+  const value = typeof amount === "number" ? amount : parseFloat(amount);
+  if (Number.isNaN(value)) return "";
+  return `$${value.toFixed(2).replace(/\.00$/, "")} CAD`;
+}
+
+function buildCartOrderTemplate(items) {
+  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const lines = items.map((item) => {
+    const priceLine = item.price ? ` · ${formatPrice(item.price * item.quantity)}` : "";
+    return `- ${item.name} — Size: ${item.size} · Qty: ${item.quantity}${priceLine}`;
+  });
+  const totalLine = total ? `Estimated total: ${formatPrice(total)}` : "";
+  return [
+    "Hi BMB-GSA,",
+    "",
+    "I’d like to place an order for:",
+    ...lines,
+    ...(totalLine ? ["", totalLine] : []),
+    "",
+    "Pickup preference:",
+    "- (e.g., on-campus pickup / delivery / flexible)",
+    "",
+    "Name:",
+    "Program/Lab (optional):",
+    "",
+    "Thanks!",
+  ].join("\n");
+}
+
+function getCartItems() {
+  return Array.from(cart.values());
+}
+
+function updateEmailLinks() {
   const subject = "BMB-GSA Merch Order";
-  const body = defaultOrderTemplate();
+  const items = getCartItems();
+  const body = items.length ? buildCartOrderTemplate(items) : defaultOrderTemplate();
   const mailto = buildMailto(subject, body);
 
   const btns = [document.getElementById("emailOrderBtn"), document.getElementById("emailOrderBtn2")];
@@ -42,19 +78,85 @@ function setEmailLinks() {
   if (emailText) emailText.textContent = MERCH_EMAIL;
 }
 
-function wireOrderButtons() {
+function renderCart() {
+  const items = getCartItems();
+  const listEl = document.getElementById("cartList");
+  const countEl = document.getElementById("cartCount");
+  const emptyEl = document.getElementById("cartEmpty");
+  const totalEl = document.getElementById("cartTotal");
+  if (!listEl || !countEl || !emptyEl || !totalEl) return;
+
+  listEl.innerHTML = "";
+  if (!items.length) {
+    emptyEl.style.display = "block";
+    totalEl.textContent = "";
+  } else {
+    emptyEl.style.display = "none";
+    items.forEach((item) => {
+      const li = document.createElement("li");
+      li.className = "cart-item";
+
+      const title = document.createElement("span");
+      title.className = "cart-item-title";
+      title.textContent = item.name;
+
+      const details = document.createElement("span");
+      details.className = "cart-item-details";
+      const priceLine = item.price ? ` · ${formatPrice(item.price * item.quantity)}` : "";
+      details.textContent = `Size: ${item.size} · Qty: ${item.quantity}${priceLine}`;
+
+      li.appendChild(title);
+      li.appendChild(details);
+      listEl.appendChild(li);
+    });
+  }
+
+  const totalQty = items.reduce((sum, item) => sum + item.quantity, 0);
+  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  countEl.textContent = String(totalQty);
+  totalEl.textContent = total ? `Total: ${formatPrice(total)}` : "";
+}
+
+function addToCart(item, size, quantity, price) {
+  const key = `${item}__${size}`;
+  const existing = cart.get(key);
+  if (existing) {
+    existing.quantity += quantity;
+    cart.set(key, existing);
+  } else {
+    cart.set(key, { name: item, size, quantity, price });
+  }
+  renderCart();
+  updateEmailLinks();
+}
+
+function wireAddToCartButtons() {
   document.querySelectorAll(".order-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const itemEl = btn.closest(".merch-item");
+      const sizeGroup = itemEl ? itemEl.querySelector(".size-options") : null;
       const selectedSize = itemEl ? itemEl.querySelector(".size-option.is-selected") : null;
       const size = selectedSize ? selectedSize.dataset.size : "";
+      if (!size) {
+        if (sizeGroup) {
+          sizeGroup.classList.add("is-missing");
+          setTimeout(() => sizeGroup.classList.remove("is-missing"), 1200);
+        }
+        return;
+      }
+
       const qtyEl = itemEl ? itemEl.querySelector(".quantity-value") : null;
-      const quantity = qtyEl ? qtyEl.textContent.trim() : "";
+      const quantity = Math.max(1, parseInt(qtyEl ? qtyEl.textContent.trim() : "1", 10) || 1);
       const item = btn.dataset.item || "Merch item";
-      const price = btn.dataset.price ? `$${btn.dataset.price} CAD` : "";
-      const subject = `BMB-GSA Merch Order — ${item}`;
-      const body = defaultOrderTemplate(`${item}${price ? ` (${price})` : ""}`, size, quantity);
-      window.location.href = buildMailto(subject, body);
+      const rawPrice = btn.dataset.price ? parseFloat(btn.dataset.price) : 0;
+      const price = Number.isNaN(rawPrice) ? 0 : rawPrice;
+      addToCart(item, size, quantity, price);
+
+      const original = btn.textContent;
+      btn.textContent = "Added ✓";
+      setTimeout(() => {
+        btn.textContent = original;
+      }, 900);
     });
   });
 }
@@ -65,6 +167,7 @@ function wireSizeOptions() {
     btn.addEventListener("click", () => {
       const group = btn.closest(".size-options");
       if (!group) return;
+      group.classList.remove("is-missing");
       const wasSelected = btn.classList.contains("is-selected");
       group.querySelectorAll(".size-option").forEach((b) => {
         b.classList.remove("is-selected");
@@ -99,6 +202,37 @@ function wireQuantityControls() {
       const current = parseInt(valueEl.textContent, 10) || 1;
       updateValue(current + 1);
     });
+  });
+}
+
+function wireCartUI() {
+  const cartEl = document.getElementById("cart");
+  const toggleBtn = document.getElementById("cartToggle");
+  const clearBtn = document.getElementById("cartClear");
+  if (!cartEl || !toggleBtn || !clearBtn) return;
+
+  const setOpen = (next) => {
+    cartEl.classList.toggle("is-open", next);
+    toggleBtn.setAttribute("aria-expanded", next ? "true" : "false");
+  };
+
+  toggleBtn.addEventListener("click", () => {
+    const isOpen = cartEl.classList.contains("is-open");
+    setOpen(!isOpen);
+  });
+
+  clearBtn.addEventListener("click", () => {
+    cart.clear();
+    renderCart();
+    updateEmailLinks();
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!cartEl.contains(event.target)) setOpen(false);
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") setOpen(false);
   });
 }
 
@@ -157,10 +291,12 @@ function setYear() {
 }
 
 // init
-setEmailLinks();
-wireOrderButtons();
+updateEmailLinks();
+renderCart();
+wireAddToCartButtons();
 wireSizeOptions();
 wireQuantityControls();
+wireCartUI();
 wireCarouselDots();
 wireCopyEmail();
 setYear();
