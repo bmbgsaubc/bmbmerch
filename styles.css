@@ -14,7 +14,7 @@ html{ scroll-behavior:smooth; }
 body{
   margin:0;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-  background: radial-gradient(1200px 800px at 20% -20%, rgb(255, 255, 255), transparent 100%),
+  background: radial-gradient(1200px 800px at 20% -10%, rgb(255, 255, 255), transparent 60%),
               radial-gradient(1200px 800px at 90% 10%, rgba(0, 85, 183, 0.555), transparent 55%),
               var(--bg);
   color:var(--text);
