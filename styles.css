@@ -351,6 +351,16 @@ h2{
   box-shadow: 0 10px 30px rgba(0,0,0,0.25);
 }
 
+.merch-item.coming-soon{
+  background: rgba(255,255,255,0.02);
+  border-style: dashed;
+}
+
+.merch-item.coming-soon .merch-actions .btn{
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
 .merch-photo{
   position: relative;
   border-radius: calc(var(--radius) - 6px);
@@ -551,6 +561,7 @@ h2{
 .in-stock{ background: rgba(16,185,129,0.12); color: #a7f3d0; }
 .low-stock{ background: rgba(245,158,11,0.12); color: #fde68a; }
 .out-stock{ background: rgba(99,102,241,0.12); color: #c7d2fe; }
+.badge.coming-soon{ background: rgba(59,130,246,0.12); color: #bfdbfe; }
 
 /* BUTTONS */
 .btn{
@@ -575,6 +586,16 @@ h2{
 }
 
 .btn:active{ transform: translateY(0px); }
+.btn:disabled{
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.btn:disabled:hover{
+  transform: none;
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.1);
+}
 
 .btn-primary{
   background: linear-gradient(135deg, rgba(0,167,225), rgba(151,212,233,0.85));
