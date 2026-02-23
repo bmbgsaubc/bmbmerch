@@ -1,0 +1,116 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Grad Network//Trainee Talks//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+
+BEGIN:VTIMEZONE
+TZID:America/Vancouver
+X-LIC-LOCATION:America/Vancouver
+BEGIN:DAYLIGHT
+TZOFFSETFROM:-0800
+TZOFFSETTO:-0700
+TZNAME:PDT
+DTSTART:19700308T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:-0700
+TZOFFSETTO:-0800
+TZNAME:PST
+DTSTART:19701101T020000
+RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
+END:STANDARD
+END:VTIMEZONE
+
+BEGIN:VEVENT
+UID:grad-network-trainee-talks-20260317@lsi
+DTSTAMP:20260212T000000Z
+SUMMARY:Grad Network Trainee Talks
+DTSTART;TZID=America/Vancouver:20260317T160000
+DTEND;TZID=America/Vancouver:20260317T170000
+LOCATION:Room LSI 1330
+DESCRIPTION:Trainee talks.\n\nSocial hour: 5:00 - 6:00 PM.\n\nWant to present? Register here:\nhttps://docs.google.com/forms/d/e/1FAIpQLSeXw7yB7GXbgzSCaBiwC-gBmzfTE1r48M6fveaTJd6Mv9hLyg/viewform?usp=send_form&pli=1&authuser=0
+END:VEVENT
+
+BEGIN:VEVENT
+UID:grad-network-trainee-talks-20260414@lsi
+DTSTAMP:20260212T000000Z
+SUMMARY:Grad Network Trainee Talks
+DTSTART;TZID=America/Vancouver:20260414T160000
+DTEND;TZID=America/Vancouver:20260414T170000
+LOCATION:Room LSI 1330
+DESCRIPTION:Trainee talks.\n\nSocial hour: 5:00 - 6:00 PM.\n\nWant to present? Register here:\nhttps://docs.google.com/forms/d/e/1FAIpQLSeXw7yB7GXbgzSCaBiwC-gBmzfTE1r48M6fveaTJd6Mv9hLyg/viewform?usp=send_form&pli=1&authuser=0
+END:VEVENT
+
+BEGIN:VEVENT
+UID:grad-network-trainee-talks-20260519@lsi
+DTSTAMP:20260212T000000Z
+SUMMARY:Grad Network Trainee Talks
+DTSTART;TZID=America/Vancouver:20260519T160000
+DTEND;TZID=America/Vancouver:20260519T170000
+LOCATION:Room LSI 1330
+DESCRIPTION:Trainee talks.\n\nSocial hour: 5:00 - 6:00 PM.\n\nWant to present? Register here:\nhttps://docs.google.com/forms/d/e/1FAIpQLSeXw7yB7GXbgzSCaBiwC-gBmzfTE1r48M6fveaTJd6Mv9hLyg/viewform?usp=send_form&pli=1&authuser=0
+END:VEVENT
+
+BEGIN:VEVENT
+UID:grad-network-trainee-talks-20260616@lsi
+DTSTAMP:20260212T000000Z
+SUMMARY:Grad Network Trainee Talks
+DTSTART;TZID=America/Vancouver:20260616T160000
+DTEND;TZID=America/Vancouver:20260616T170000
+LOCATION:Room LSI 1330
+DESCRIPTION:Trainee talks.\n\nSocial hour: 5:00 - 6:00 PM.\n\nWant to present? Register here:\nhttps://docs.google.com/forms/d/e/1FAIpQLSeXw7yB7GXbgzSCaBiwC-gBmzfTE1r48M6fveaTJd6Mv9hLyg/viewform?usp=send_form&pli=1&authuser=0
+END:VEVENT
+
+BEGIN:VEVENT
+UID:grad-network-trainee-talks-20260714@lsi
+DTSTAMP:20260212T000000Z
+SUMMARY:Grad Network Trainee Talks
+DTSTART;TZID=America/Vancouver:20260714T160000
+DTEND;TZID=America/Vancouver:20260714T170000
+LOCATION:Room LSI 1330
+DESCRIPTION:Trainee talks.\n\nSocial hour: 5:00 - 6:00 PM.\n\nWant to present? Register here:\nhttps://docs.google.com/forms/d/e/1FAIpQLSeXw7yB7GXbgzSCaBiwC-gBmzfTE1r48M6fveaTJd6Mv9hLyg/viewform?usp=send_form&pli=1&authuser=0
+END:VEVENT
+
+BEGIN:VEVENT
+UID:grad-network-trainee-talks-20260818@lsi
+DTSTAMP:20260212T000000Z
+SUMMARY:Grad Network Trainee Talks
+DTSTART;TZID=America/Vancouver:20260818T160000
+DTEND;TZID=America/Vancouver:20260818T170000
+LOCATION:Room LSI 1330
+DESCRIPTION:Trainee talks.\n\nSocial hour: 5:00 - 6:00 PM.\n\nWant to present? Register here:\nhttps://docs.google.com/forms/d/e/1FAIpQLSeXw7yB7GXbgzSCaBiwC-gBmzfTE1r48M6fveaTJd6Mv9hLyg/viewform?usp=send_form&pli=1&authuser=0
+END:VEVENT
+
+BEGIN:VEVENT
+UID:grad-network-trainee-talks-20260915@lsi
+DTSTAMP:20260212T000000Z
+SUMMARY:Grad Network Trainee Talks
+DTSTART;TZID=America/Vancouver:20260915T160000
+DTEND;TZID=America/Vancouver:20260915T170000
+LOCATION:Room LSI 1330
+DESCRIPTION:Trainee talks.\n\nSocial hour: 5:00 - 6:00 PM.\n\nWant to present? Register here:\nhttps://docs.google.com/forms/d/e/1FAIpQLSeXw7yB7GXbgzSCaBiwC-gBmzfTE1r48M6fveaTJd6Mv9hLyg/viewform?usp=send_form&pli=1&authuser=0
+END:VEVENT
+
+BEGIN:VEVENT
+UID:grad-network-trainee-talks-20261020@lsi
+DTSTAMP:20260212T000000Z
+SUMMARY:Grad Network Trainee Talks
+DTSTART;TZID=America/Vancouver:20261020T160000
+DTEND;TZID=America/Vancouver:20261020T170000
+LOCATION:Room LSI 1330
+DESCRIPTION:Trainee talks.\n\nSocial hour: 5:00 - 6:00 PM.\n\nWant to present? Register here:\nhttps://docs.google.com/forms/d/e/1FAIpQLSeXw7yB7GXbgzSCaBiwC-gBmzfTE1r48M6fveaTJd6Mv9hLyg/viewform?usp=send_form&pli=1&authuser=0
+END:VEVENT
+
+BEGIN:VEVENT
+UID:grad-network-trainee-talks-20261117@lsi
+DTSTAMP:20260212T000000Z
+SUMMARY:Grad Network Trainee Talks
+DTSTART;TZID=America/Vancouver:20261117T160000
+DTEND;TZID=America/Vancouver:20261117T170000
+LOCATION:Room LSI 1330
+DESCRIPTION:Trainee talks.\n\nSocial hour: 5:00 - 6:00 PM.\n\nWant to present? Register here:\nhttps://docs.google.com/forms/d/e/1FAIpQLSeXw7yB7GXbgzSCaBiwC-gBmzfTE1r48M6fveaTJd6Mv9hLyg/viewform?usp=send_form&pli=1&authuser=0
+END:VEVENT
+
+END:VCALENDAR
