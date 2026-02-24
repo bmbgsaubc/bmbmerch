@@ -46,9 +46,9 @@
             </div>
           </div>
         </div>
-        <a class="btn btn-primary" id="emailOrderBtn" href="#">
-          Order
-        </a>
+        <button class="btn btn-primary" id="submitOrderBtn" type="button">
+          Submit Order
+        </button>
       </div>
     </div>
   </header>
@@ -263,6 +263,33 @@
       </div>
     </footer>
   </main>
+
+  <div class="modal" id="orderModal" aria-hidden="true">
+    <div class="modal-backdrop" id="orderModalBackdrop"></div>
+    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="orderModalTitle">
+      <h2 id="orderModalTitle">Submit Your Order</h2>
+      <p class="modal-sub">We will send your order to our merch sheet automatically.</p>
+
+      <form id="orderForm" class="order-form">
+        <label for="orderName">Name</label>
+        <input id="orderName" name="name" type="text" required />
+
+        <label for="orderContact">Phone number or email address</label>
+        <input id="orderContact" name="contact" type="text" required />
+
+        <label for="orderLab">Lab</label>
+        <input id="orderLab" name="lab" type="text" />
+
+        <p class="modal-status" id="orderStatus" role="status" aria-live="polite"></p>
+
+        <div class="modal-actions">
+          <button class="btn btn-ghost" id="orderCancelBtn" type="button">Cancel</button>
+          <a class="btn btn-secondary" id="emailOrderFallbackBtn" href="#">Email Instead</a>
+          <button class="btn btn-primary" id="orderSubmitBtn" type="submit">Send to Sheet</button>
+        </div>
+      </form>
+    </section>
+  </div>
 
   <script src="script.js"></script>
 </body>

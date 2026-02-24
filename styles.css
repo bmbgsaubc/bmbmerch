@@ -649,6 +649,85 @@ h2{
 .small{ font-size: 13px; }
 .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
 
+/* ORDER MODAL */
+.modal{
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 90;
+  padding: 16px;
+}
+
+.modal.is-open{
+  display: flex;
+}
+
+.modal-backdrop{
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+}
+
+.modal-card{
+  position: relative;
+  width: min(520px, 96vw);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: rgba(11,15,23,0.98);
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+
+.modal-card h2{
+  margin: 0 0 6px;
+  font-size: 24px;
+}
+
+.modal-sub{
+  margin: 0 0 14px;
+  color: var(--muted);
+}
+
+.order-form{
+  display: grid;
+  gap: 8px;
+}
+
+.order-form label{
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.order-form input{
+  width: 100%;
+  padding: 10px 11px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+}
+
+.order-form input:focus{
+  outline: 2px solid rgba(0,167,225,0.5);
+  outline-offset: 1px;
+}
+
+.modal-status{
+  min-height: 22px;
+  font-size: 13px;
+  color: #bfdbfe;
+  margin: 2px 0 0;
+}
+
+.modal-actions{
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
 /* RESPONSIVE */
 @media (max-width: 900px){
   .hero-grid{ grid-template-columns: 1fr; }

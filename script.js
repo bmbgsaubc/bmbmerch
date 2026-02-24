@@ -1,5 +1,7 @@
-// ====== Configure this email ======
-const MERCH_EMAIL = "bmbgsa.ubc@gmail.com"; // <-- change to your real email
+// ====== Configure contact + Sheets webhook ======
+const MERCH_EMAIL = "bmbgsa.ubc@gmail.com";
+const SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzyDyYyofHN2V97IyWAHHvUPCPyPw_DpH7noHMqDT8KkBmY7vvFmP5i9pHXPiaY07cG/exec";
+
 const cart = new Map();
 
 function buildMailto(subject, body) {
@@ -21,20 +23,6 @@ function defaultOrderTemplate(itemName = "", size = "", quantity = "") {
     quantity ? `- Quantity: ${quantity}` : "- Quantity:",
     "",
     "Pickup/Dropoff preference:",
-    "- (e.g., on-campus pickup / delivery / flexible)",
-    "",
-    "Name: ___________",
-    "",
-    "Phone number/email address for contact: ___________",
-    "",
-    "Lab (optional): _________",
-    "",
-    "Thanks!",
-  ].join("\n");
-}
-
-function formatPrice(amount) {
-  return [
     "- (e.g., on-campus pickup / delivery / flexible)",
     "",
     "Name: ___________",
@@ -74,7 +62,7 @@ function buildCartOrderTemplate(items) {
     "Name: ___________",
     "",
     "Phone number/email address for contact: ___________",
-
+    "",
     "Lab (optional): _________",
     "",
     "Thanks!",
@@ -91,9 +79,9 @@ function updateEmailLinks() {
   const body = items.length ? buildCartOrderTemplate(items) : defaultOrderTemplate();
   const mailto = buildMailto(subject, body);
 
-  const btns = [document.getElementById("emailOrderBtn"), document.getElementById("emailOrderBtn2")];
-  btns.forEach((b) => {
-    if (b) b.href = mailto;
+  ["emailOrderBtn2", "emailOrderFallbackBtn"].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.href = mailto;
   });
 
   const emailText = document.getElementById("merchEmailText");
@@ -150,6 +138,55 @@ function addToCart(item, size, quantity, price) {
   }
   renderCart();
   updateEmailLinks();
+}
+
+function buildSheetRows(customer, items) {
+  const groupedByItem = new Map();
+  items.forEach((item) => {
+    if (!groupedByItem.has(item.name)) {
+      groupedByItem.set(item.name, { S: 0, M: 0, L: 0, XL: 0 });
+    }
+    const group = groupedByItem.get(item.name);
+    if (Object.hasOwn(group, item.size)) {
+      group[item.size] += item.quantity;
+    }
+  });
+
+  return Array.from(groupedByItem.entries()).map(([itemName, sizes]) => ({
+    name: customer.name,
+    contact: customer.contact,
+    lab: customer.lab || "",
+    itemName,
+    sizeSmall: sizes.S,
+    sizeMedium: sizes.M,
+    sizeLarge: sizes.L,
+    sizeXL: sizes.XL,
+  }));
+}
+
+async function submitOrderToSheet(customer) {
+  if (!SHEETS_WEBHOOK_URL || !SHEETS_WEBHOOK_URL.startsWith("http")) {
+    throw new Error("Sheets webhook URL is not configured yet.");
+  }
+
+  const items = getCartItems();
+  if (!items.length) {
+    throw new Error("Your cart is empty.");
+  }
+
+  const rows = buildSheetRows(customer, items);
+  const payload = {
+    submittedAt: new Date().toISOString(),
+    source: "bmb-gsa-merch-site",
+    orders: rows,
+  };
+
+  await fetch(SHEETS_WEBHOOK_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
 }
 
 function wireAddToCartButtons() {
@@ -301,8 +338,67 @@ function wireCopyEmail() {
       copyBtn.textContent = "Copied ✅";
       setTimeout(() => (copyBtn.textContent = "Copy email"), 1200);
     } catch {
-      // fallback
       window.prompt("Copy this email:", MERCH_EMAIL);
+    }
+  });
+}
+
+function wireOrderModal() {
+  const modal = document.getElementById("orderModal");
+  const openBtn = document.getElementById("submitOrderBtn");
+  const closeBtn = document.getElementById("orderCancelBtn");
+  const backdrop = document.getElementById("orderModalBackdrop");
+  const form = document.getElementById("orderForm");
+  const status = document.getElementById("orderStatus");
+  const submitBtn = document.getElementById("orderSubmitBtn");
+  if (!modal || !openBtn || !closeBtn || !backdrop || !form || !status || !submitBtn) return;
+
+  const setOpen = (next) => {
+    modal.classList.toggle("is-open", next);
+    modal.setAttribute("aria-hidden", next ? "false" : "true");
+    if (!next) status.textContent = "";
+  };
+
+  openBtn.addEventListener("click", () => {
+    if (!getCartItems().length) {
+      status.textContent = "Add at least one item to your cart first.";
+      setOpen(true);
+      return;
+    }
+    setOpen(true);
+  });
+
+  closeBtn.addEventListener("click", () => setOpen(false));
+  backdrop.addEventListener("click", () => setOpen(false));
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const data = new FormData(form);
+    const customer = {
+      name: String(data.get("name") || "").trim(),
+      contact: String(data.get("contact") || "").trim(),
+      lab: String(data.get("lab") || "").trim(),
+    };
+
+    if (!customer.name || !customer.contact) {
+      status.textContent = "Name and contact are required.";
+      return;
+    }
+
+    try {
+      submitBtn.disabled = true;
+      status.textContent = "Submitting order...";
+      await submitOrderToSheet(customer);
+      status.textContent = "Order submitted. Thank you.";
+      form.reset();
+      cart.clear();
+      renderCart();
+      updateEmailLinks();
+      setTimeout(() => setOpen(false), 900);
+    } catch (error) {
+      status.textContent = `Could not submit order: ${error.message}`;
+    } finally {
+      submitBtn.disabled = false;
     }
   });
 }
@@ -312,7 +408,6 @@ function setYear() {
   if (y) y.textContent = new Date().getFullYear();
 }
 
-// init
 updateEmailLinks();
 renderCart();
 wireAddToCartButtons();
@@ -321,4 +416,5 @@ wireQuantityControls();
 wireCartUI();
 wireCarouselDots();
 wireCopyEmail();
+wireOrderModal();
 setYear();
