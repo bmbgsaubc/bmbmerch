@@ -690,6 +690,15 @@ h2{
   color: var(--muted);
 }
 
+.modal-sub a{
+  color: #60a5fa;
+  text-decoration: underline;
+}
+
+.modal-sub a:hover{
+  color: #93c5fd;
+}
+
 .order-form{
   display: grid;
   gap: 8px;
