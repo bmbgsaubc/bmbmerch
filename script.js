@@ -1,6 +1,6 @@
 // ====== Configure contact + Sheets webhook ======
 const MERCH_EMAIL = "bmbgsa.ubc@gmail.com";
-const SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzyDyYyofHN2V97IyWAHHvUPCPyPw_DpH7noHMqDT8KkBmY7vvFmP5i9pHXPiaY07cG/exec";
+const SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwU8CYQKz8inkdJMjQbVAMgywphFbMDDq46xpUnFkfZlutQf9dgRISSTXhHqHlPPQs/exec";
 
 const cart = new Map();
 
