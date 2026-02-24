@@ -156,6 +156,7 @@ function buildSheetRows(customer, items) {
     name: customer.name,
     contact: customer.contact,
     lab: customer.lab || "",
+    fulfillment: customer.fulfillment || "",
     itemName,
     sizeSmall: sizes.S,
     sizeMedium: sizes.M,
@@ -378,10 +379,11 @@ function wireOrderModal() {
       name: String(data.get("name") || "").trim(),
       contact: String(data.get("contact") || "").trim(),
       lab: String(data.get("lab") || "").trim(),
+      fulfillment: String(data.get("fulfillment") || "").trim(),
     };
 
-    if (!customer.name || !customer.contact) {
-      status.textContent = "Name and contact are required.";
+    if (!customer.name || !customer.contact || !customer.fulfillment) {
+      status.textContent = "Name, contact, and pickup/dropoff preference are required.";
       return;
     }
 

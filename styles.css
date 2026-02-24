@@ -700,7 +700,8 @@ h2{
   color: var(--muted);
 }
 
-.order-form input{
+.order-form input,
+.order-form select{
   width: 100%;
   padding: 10px 11px;
   border-radius: 10px;
@@ -709,7 +710,8 @@ h2{
   color: var(--text);
 }
 
-.order-form input:focus{
+.order-form input:focus,
+.order-form select:focus{
   outline: 2px solid rgba(0,167,225,0.5);
   outline-offset: 1px;
 }

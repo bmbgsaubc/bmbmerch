@@ -280,6 +280,13 @@
         <label for="orderLab">Lab</label>
         <input id="orderLab" name="lab" type="text" />
 
+        <label for="orderFulfillment">Pickup/Dropoff preference</label>
+        <select id="orderFulfillment" name="fulfillment" required>
+          <option value="Pickup @ LSI">Pickup @ LSI</option>
+          <option value="We drop off at your lab">We drop off at your lab</option>
+          <option value="flexible">flexible</option>
+        </select>
+
         <p class="modal-status" id="orderStatus" role="status" aria-live="polite"></p>
 
         <div class="modal-actions">
