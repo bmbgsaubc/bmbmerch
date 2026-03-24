@@ -299,13 +299,39 @@ function wireCartUI() {
 function wireCarouselDots() {
   document.querySelectorAll(".merch-photo").forEach((photo) => {
     const track = photo.querySelector(".carousel-track");
-    const dots = photo.querySelectorAll(".carousel-dot");
-    if (!track || dots.length === 0) return;
+    if (!track) return;
+
+    const slides = Array.from(track.querySelectorAll("img"));
+    if (!slides.length) return;
+
+    let dotsWrap = photo.querySelector(".carousel-dots");
+    if (!dotsWrap) {
+      dotsWrap = document.createElement("div");
+      dotsWrap.className = "carousel-dots";
+      dotsWrap.setAttribute("aria-hidden", "true");
+      photo.appendChild(dotsWrap);
+    }
+
+    dotsWrap.innerHTML = "";
+    const dots = slides.map((_, index) => {
+      const dot = document.createElement("span");
+      dot.className = "carousel-dot";
+      if (index === 0) dot.classList.add("is-active");
+      dotsWrap.appendChild(dot);
+      return dot;
+    });
+
+    if (slides.length < 2) {
+      dotsWrap.style.display = "none";
+      return;
+    }
+    dotsWrap.style.display = "";
 
     let ticking = false;
     const update = () => {
       const width = track.clientWidth || 1;
-      const index = Math.round(track.scrollLeft / width);
+      const rawIndex = Math.round(track.scrollLeft / width);
+      const index = Math.max(0, Math.min(slides.length - 1, rawIndex));
       dots.forEach((dot, i) => {
         dot.classList.toggle("is-active", i === index);
       });
