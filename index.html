@@ -71,6 +71,17 @@
           <p class="micro">
             Email: <span class="mono" id="merchEmailText">bmbgsa.ubc@gmail.com</span>
           </p>
+
+          <div class="hero-customizer">
+            <div class="hero-customizer-copy">
+              <p class="hero-customizer-kicker">Custom logo option</p>
+              <h2 class="hero-customizer-title">Build your own two-colour BMB tee.</h2>
+              <p class="sub">
+                Pick a shirt base, change the primary and secondary logo colours, and preview the logo live before you order.
+              </p>
+            </div>
+            <button class="btn btn-secondary" id="openCustomizerBtn" type="button">Customize Logo Colours</button>
+          </div>
         </div>
 
         <div class="hero-card">
@@ -412,6 +423,64 @@
       </div>
     </footer>
   </main>
+
+  <div class="modal" id="customizerModal" aria-hidden="true">
+    <div class="modal-backdrop" id="customizerModalBackdrop"></div>
+    <section class="modal-card customizer-modal-card" role="dialog" aria-modal="true" aria-labelledby="customizerModalTitle">
+      <h2 id="customizerModalTitle">Customize your BMB logo colours</h2>
+      <p class="modal-sub">Choose a t-shirt base, set the two logo colours, and copy the finished colour details into your order email.</p>
+
+      <div class="customizer-layout">
+        <div class="customizer-controls">
+          <div class="customizer-field">
+            <p class="customizer-label">T-shirt design</p>
+            <div class="customizer-designs" id="customizerDesigns">
+              <button class="design-option is-selected" type="button" data-design="white" aria-pressed="true">White tee</button>
+              <button class="design-option" type="button" data-design="black" aria-pressed="false">Black tee</button>
+              <button class="design-option" type="button" data-design="beige" aria-pressed="false">Beige tee</button>
+            </div>
+          </div>
+
+          <div class="customizer-field">
+            <label class="customizer-label" for="primaryColorInput">Primary colour</label>
+            <div class="customizer-color-row">
+              <input id="primaryColorInput" class="customizer-color-input" name="primaryColor" type="color" value="#002145" />
+              <input id="primaryColorHex" class="customizer-text-input" name="primaryColorHex" type="text" value="#002145" inputmode="text" spellcheck="false" />
+            </div>
+          </div>
+
+          <div class="customizer-field">
+            <label class="customizer-label" for="secondaryColorInput">Secondary colour</label>
+            <div class="customizer-color-row">
+              <input id="secondaryColorInput" class="customizer-color-input" name="secondaryColor" type="color" value="#A89565" />
+              <input id="secondaryColorHex" class="customizer-text-input" name="secondaryColorHex" type="text" value="#A89565" inputmode="text" spellcheck="false" />
+            </div>
+          </div>
+
+          <div class="customizer-summary">
+            <p class="customizer-label">Ready to order</p>
+            <p id="customizerSummaryText">White tee, primary #002145, secondary #A89565</p>
+          </div>
+        </div>
+
+        <div class="customizer-preview-panel">
+          <p class="customizer-label">Live preview</p>
+          <div class="shirt-preview" id="shirtPreview" data-design="white">
+            <span class="shirt-preview-tag" id="designPreviewLabel">White tee</span>
+            <div class="shirt-preview-logo" id="logoPreview" aria-label="Live BMB logo preview"></div>
+          </div>
+          <p class="preview-note" id="designPreviewName">Classic white tee base with a custom two-colour logo.</p>
+        </div>
+      </div>
+
+      <p class="modal-status" id="customizerStatus" role="status" aria-live="polite"></p>
+
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="customizerCloseBtn" type="button">Close</button>
+        <button class="btn btn-primary" id="customizerCopyBtn" type="button">Copy Colour Details</button>
+      </div>
+    </section>
+  </div>
 
   <div class="modal" id="orderModal" aria-hidden="true">
     <div class="modal-backdrop" id="orderModalBackdrop"></div>

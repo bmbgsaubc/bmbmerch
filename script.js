@@ -1,8 +1,31 @@
 // ====== Configure contact + Sheets webhook ======
 const MERCH_EMAIL = "bmbgsa.ubc@gmail.com";
 const SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwU8CYQKz8inkdJMjQbVAMgywphFbMDDq46xpUnFkfZlutQf9dgRISSTXhHqHlPPQs/exec";
+const LOGO_PREVIEW_URL = "assets/bmb-gsa-logo.svg";
+const CUSTOMIZER_DESIGNS = {
+  white: {
+    label: "White tee",
+    note: "Classic white tee base with a custom two-colour logo.",
+  },
+  black: {
+    label: "Black tee",
+    note: "Dark tee base that makes bright or high-contrast colours stand out.",
+  },
+  beige: {
+    label: "Beige tee",
+    note: "Warm neutral tee base for softer or vintage-inspired colourways.",
+  },
+};
 
 const cart = new Map();
+const customizerState = {
+  design: "white",
+  primary: "#002145",
+  secondary: "#A89565",
+  svg: null,
+};
+
+let customizerSvgTemplate = null;
 
 function buildMailto(subject, body) {
   return (
@@ -355,6 +378,224 @@ function wireCarouselDots() {
   });
 }
 
+function normalizeHexColor(value) {
+  const cleaned = String(value || "")
+    .trim()
+    .replace(/^#/, "");
+  if (!/^[\da-fA-F]{3}$|^[\da-fA-F]{6}$/.test(cleaned)) return null;
+  const expanded =
+    cleaned.length === 3
+      ? cleaned
+          .split("")
+          .map((char) => char + char)
+          .join("")
+      : cleaned;
+  return `#${expanded.toUpperCase()}`;
+}
+
+function applyColorToLogoGroup(group, color) {
+  if (!group) return;
+
+  group.querySelectorAll("*").forEach((node) => {
+    if (!(node instanceof Element)) return;
+    const fill = node.getAttribute("fill") || node.style.fill;
+    const stroke = node.getAttribute("stroke") || node.style.stroke;
+
+    if (fill !== "none") {
+      node.setAttribute("fill", color);
+      node.style.fill = color;
+    }
+
+    if (stroke && stroke !== "none") {
+      node.setAttribute("stroke", color);
+      node.style.stroke = color;
+    }
+  });
+}
+
+function applyCustomizerLogoColors() {
+  if (!customizerState.svg) return;
+
+  const primaryGroup = customizerState.svg.querySelector("#layer3");
+  const secondaryGroup = customizerState.svg.querySelector("#layer2");
+  applyColorToLogoGroup(primaryGroup, customizerState.primary);
+  applyColorToLogoGroup(secondaryGroup, customizerState.secondary);
+}
+
+async function loadCustomizerLogoSvg() {
+  if (customizerSvgTemplate) return customizerSvgTemplate.cloneNode(true);
+
+  const response = await fetch(LOGO_PREVIEW_URL);
+  if (!response.ok) {
+    throw new Error("Could not load the logo preview.");
+  }
+
+  const markup = await response.text();
+  const parsed = new DOMParser().parseFromString(markup, "image/svg+xml");
+  const svg = parsed.querySelector("svg");
+  if (!svg) {
+    throw new Error("Could not read the logo preview.");
+  }
+
+  svg.removeAttribute("width");
+  svg.removeAttribute("height");
+  svg.setAttribute("aria-hidden", "true");
+  svg.setAttribute("focusable", "false");
+  customizerSvgTemplate = document.importNode(svg, true);
+  return customizerSvgTemplate.cloneNode(true);
+}
+
+async function ensureCustomizerLogoMounted() {
+  const preview = document.getElementById("logoPreview");
+  if (!preview || customizerState.svg) return;
+
+  preview.classList.add("is-loading");
+  try {
+    const svg = await loadCustomizerLogoSvg();
+    preview.innerHTML = "";
+    preview.appendChild(svg);
+    customizerState.svg = svg;
+    applyCustomizerLogoColors();
+  } catch (error) {
+    customizerState.svg = null;
+    preview.textContent = "Logo preview unavailable.";
+  } finally {
+    preview.classList.remove("is-loading");
+  }
+}
+
+function updateCustomizerSummary() {
+  const summary = document.getElementById("customizerSummaryText");
+  if (!summary) return;
+
+  const design = CUSTOMIZER_DESIGNS[customizerState.design] || CUSTOMIZER_DESIGNS.white;
+  summary.textContent = `${design.label}, primary ${customizerState.primary}, secondary ${customizerState.secondary}`;
+}
+
+function updateCustomizerDesign(designKey) {
+  const design = CUSTOMIZER_DESIGNS[designKey];
+  if (!design) return;
+
+  customizerState.design = designKey;
+
+  const shirtPreview = document.getElementById("shirtPreview");
+  const previewLabel = document.getElementById("designPreviewLabel");
+  const previewName = document.getElementById("designPreviewName");
+
+  if (shirtPreview) shirtPreview.dataset.design = designKey;
+  if (previewLabel) previewLabel.textContent = design.label;
+  if (previewName) previewName.textContent = design.note;
+
+  document.querySelectorAll(".design-option").forEach((button) => {
+    const isSelected = button.dataset.design === designKey;
+    button.classList.toggle("is-selected", isSelected);
+    button.setAttribute("aria-pressed", isSelected ? "true" : "false");
+  });
+
+  updateCustomizerSummary();
+}
+
+function setCustomizerColor(role, value) {
+  const normalized = normalizeHexColor(value);
+  if (!normalized) return false;
+
+  customizerState[role] = normalized;
+
+  const colorInput = document.getElementById(`${role}ColorInput`);
+  const hexInput = document.getElementById(`${role}ColorHex`);
+  if (colorInput) colorInput.value = normalized;
+  if (hexInput) hexInput.value = normalized;
+
+  applyCustomizerLogoColors();
+  updateCustomizerSummary();
+  return true;
+}
+
+function wireCustomizerModal() {
+  const modal = document.getElementById("customizerModal");
+  const openBtn = document.getElementById("openCustomizerBtn");
+  const closeBtn = document.getElementById("customizerCloseBtn");
+  const backdrop = document.getElementById("customizerModalBackdrop");
+  const copyBtn = document.getElementById("customizerCopyBtn");
+  const status = document.getElementById("customizerStatus");
+  const primaryColorInput = document.getElementById("primaryColorInput");
+  const primaryColorHex = document.getElementById("primaryColorHex");
+  const secondaryColorInput = document.getElementById("secondaryColorInput");
+  const secondaryColorHex = document.getElementById("secondaryColorHex");
+  if (
+    !modal ||
+    !openBtn ||
+    !closeBtn ||
+    !backdrop ||
+    !copyBtn ||
+    !status ||
+    !primaryColorInput ||
+    !primaryColorHex ||
+    !secondaryColorInput ||
+    !secondaryColorHex
+  ) {
+    return;
+  }
+
+  const setOpen = (next) => {
+    modal.classList.toggle("is-open", next);
+    modal.setAttribute("aria-hidden", next ? "false" : "true");
+    if (!next) {
+      status.textContent = "";
+      return;
+    }
+    void ensureCustomizerLogoMounted();
+  };
+
+  const handleHexInput = (role, input) => {
+    const normalized = normalizeHexColor(input.value);
+    if (normalized) setCustomizerColor(role, normalized);
+  };
+
+  openBtn.addEventListener("click", () => setOpen(true));
+  closeBtn.addEventListener("click", () => setOpen(false));
+  backdrop.addEventListener("click", () => setOpen(false));
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && modal.classList.contains("is-open")) {
+      setOpen(false);
+    }
+  });
+
+  document.querySelectorAll(".design-option").forEach((button) => {
+    button.addEventListener("click", () => updateCustomizerDesign(button.dataset.design || "white"));
+  });
+
+  primaryColorInput.addEventListener("input", () => setCustomizerColor("primary", primaryColorInput.value));
+  secondaryColorInput.addEventListener("input", () => setCustomizerColor("secondary", secondaryColorInput.value));
+
+  primaryColorHex.addEventListener("input", () => handleHexInput("primary", primaryColorHex));
+  secondaryColorHex.addEventListener("input", () => handleHexInput("secondary", secondaryColorHex));
+
+  primaryColorHex.addEventListener("blur", () => {
+    primaryColorHex.value = customizerState.primary;
+  });
+  secondaryColorHex.addEventListener("blur", () => {
+    secondaryColorHex.value = customizerState.secondary;
+  });
+
+  copyBtn.addEventListener("click", async () => {
+    const design = CUSTOMIZER_DESIGNS[customizerState.design] || CUSTOMIZER_DESIGNS.white;
+    const text = `Custom BMB logo request: ${design.label}; Primary ${customizerState.primary}; Secondary ${customizerState.secondary}`;
+
+    try {
+      await navigator.clipboard.writeText(text);
+      status.textContent = "Colour details copied. Paste them into your order email.";
+    } catch {
+      window.prompt("Copy these colour details:", text);
+    }
+  });
+
+  updateCustomizerDesign(customizerState.design);
+  setCustomizerColor("primary", customizerState.primary);
+  setCustomizerColor("secondary", customizerState.secondary);
+}
+
 function wireCopyEmail() {
   const copyBtn = document.getElementById("copyEmailBtn");
   if (!copyBtn) return;
@@ -443,6 +684,7 @@ wireSizeOptions();
 wireQuantityControls();
 wireCartUI();
 wireCarouselDots();
+wireCustomizerModal();
 wireCopyEmail();
 wireOrderModal();
 setYear();
