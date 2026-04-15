@@ -24,7 +24,7 @@ const CUSTOMIZER_LOGOS = {
     path: "assets/clear-withtext.svg",
     note: "Clear-with-text logo with editable primary and secondary colour groups.",
     groups: {
-      primary: "#layer3",
+      primary: ["#layer3", "#clearTextPrimaryFill"],
       secondary: "#layer2",
     },
     defaults: {
@@ -442,7 +442,7 @@ function normalizeHexColor(value) {
 function applyColorToLogoGroup(group, color) {
   if (!group) return;
 
-  group.querySelectorAll("*").forEach((node) => {
+  [group, ...group.querySelectorAll("*")].forEach((node) => {
     if (!(node instanceof Element)) return;
     const fill = node.getAttribute("fill") || node.style.fill;
     const stroke = node.getAttribute("stroke") || node.style.stroke;
@@ -463,9 +463,12 @@ function applyCustomizerLogoColors() {
   if (!customizerState.svg) return;
 
   const logo = getCustomizerLogoConfig();
-  Object.entries(logo.groups).forEach(([role, selector]) => {
-    const group = customizerState.svg.querySelector(selector);
-    applyColorToLogoGroup(group, customizerState[role]);
+  Object.entries(logo.groups).forEach(([role, selectors]) => {
+    const selectorList = Array.isArray(selectors) ? selectors : [selectors];
+    selectorList.forEach((selector) => {
+      const group = customizerState.svg.querySelector(selector);
+      applyColorToLogoGroup(group, customizerState[role]);
+    });
   });
 }
 
@@ -492,6 +495,60 @@ function updateCustomizerPreviewDetails() {
   if (previewName) previewName.textContent = `${logo.note} ${design.note}`;
 }
 
+function prepareClearLogoPrimaryText(svg) {
+  const svgNs = "http://www.w3.org/2000/svg";
+  const originalTextImage = svg.querySelector("#image1");
+  if (!(originalTextImage instanceof SVGImageElement)) return;
+  if (svg.querySelector("#clearTextPrimaryFill")) return;
+
+  const textWidth = originalTextImage.getAttribute("width");
+  const textHeight = originalTextImage.getAttribute("height");
+  const textX = originalTextImage.getAttribute("x") || "0";
+  const textY = originalTextImage.getAttribute("y") || "0";
+
+  if (!textWidth || !textHeight) return;
+
+  let defs = svg.querySelector("defs");
+  if (!defs) {
+    defs = document.createElementNS(svgNs, "defs");
+    svg.insertBefore(defs, svg.firstChild);
+  }
+
+  const mask = document.createElementNS(svgNs, "mask");
+  mask.setAttribute("id", "clearTextPrimaryMask");
+  mask.setAttribute("maskUnits", "userSpaceOnUse");
+  mask.setAttribute("maskContentUnits", "userSpaceOnUse");
+  mask.style.maskType = "alpha";
+
+  const maskImage = originalTextImage.cloneNode(true);
+  if (maskImage instanceof Element) {
+    maskImage.removeAttribute("id");
+  }
+  mask.appendChild(maskImage);
+  defs.appendChild(mask);
+
+  const textFill = document.createElementNS(svgNs, "rect");
+  textFill.setAttribute("id", "clearTextPrimaryFill");
+  textFill.setAttribute("x", textX);
+  textFill.setAttribute("y", textY);
+  textFill.setAttribute("width", textWidth);
+  textFill.setAttribute("height", textHeight);
+  textFill.setAttribute("fill", customizerState.primary);
+  textFill.setAttribute("mask", "url(#clearTextPrimaryMask)");
+
+  originalTextImage.setAttribute("display", "none");
+  const parent = originalTextImage.parentNode;
+  if (parent) {
+    parent.insertBefore(textFill, originalTextImage.nextSibling);
+  }
+}
+
+function prepareCustomizerLogoSvg(svg, logoKey) {
+  if (logoKey === "clear") {
+    prepareClearLogoPrimaryText(svg);
+  }
+}
+
 async function loadCustomizerLogoSvg(logoKey = customizerState.logo) {
   const logo = getCustomizerLogoConfig(logoKey);
   if (customizerSvgTemplates.has(logo.path)) {
@@ -514,6 +571,7 @@ async function loadCustomizerLogoSvg(logoKey = customizerState.logo) {
   svg.removeAttribute("height");
   svg.setAttribute("aria-hidden", "true");
   svg.setAttribute("focusable", "false");
+  prepareCustomizerLogoSvg(svg, logoKey);
   const template = document.importNode(svg, true);
   customizerSvgTemplates.set(logo.path, template);
   return template.cloneNode(true);
