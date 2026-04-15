@@ -1,27 +1,33 @@
 // ====== Configure contact + Sheets webhook ======
 const MERCH_EMAIL = "bmbgsa.ubc@gmail.com";
 const SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwU8CYQKz8inkdJMjQbVAMgywphFbMDDq46xpUnFkfZlutQf9dgRISSTXhHqHlPPQs/exec";
-const LOGO_PREVIEW_URL = "assets/bmb-gsa-logo.svg";
+const LOGO_PREVIEW_URL = "assets/Circle_Customizable.svg";
+const CUSTOMIZER_LOGO_GROUPS = {
+  primary: "#g1",
+  secondary: "#g2",
+  background: "#g6",
+};
 const CUSTOMIZER_DESIGNS = {
   white: {
     label: "White tee",
-    note: "Classic white tee base with a custom two-colour logo.",
+    note: "Classic white tee base with the customizable circular crest previewed live.",
   },
   black: {
     label: "Black tee",
-    note: "Dark tee base that makes bright or high-contrast colours stand out.",
+    note: "Dark tee base that makes metallic or high-contrast crest colours stand out.",
   },
   beige: {
     label: "Beige tee",
-    note: "Warm neutral tee base for softer or vintage-inspired colourways.",
+    note: "Warm neutral tee base for softer or vintage-inspired crest colourways.",
   },
 };
 
 const cart = new Map();
 const customizerState = {
   design: "white",
-  primary: "#002145",
-  secondary: "#A89565",
+  primary: "#000000",
+  secondary: "#C0C0C0",
+  background: "#FFFFFF",
   svg: null,
 };
 
@@ -416,10 +422,10 @@ function applyColorToLogoGroup(group, color) {
 function applyCustomizerLogoColors() {
   if (!customizerState.svg) return;
 
-  const primaryGroup = customizerState.svg.querySelector("#layer3");
-  const secondaryGroup = customizerState.svg.querySelector("#layer2");
-  applyColorToLogoGroup(primaryGroup, customizerState.primary);
-  applyColorToLogoGroup(secondaryGroup, customizerState.secondary);
+  Object.entries(CUSTOMIZER_LOGO_GROUPS).forEach(([role, selector]) => {
+    const group = customizerState.svg.querySelector(selector);
+    applyColorToLogoGroup(group, customizerState[role]);
+  });
 }
 
 async function loadCustomizerLogoSvg() {
@@ -469,7 +475,9 @@ function updateCustomizerSummary() {
   if (!summary) return;
 
   const design = CUSTOMIZER_DESIGNS[customizerState.design] || CUSTOMIZER_DESIGNS.white;
-  summary.textContent = `${design.label}, primary ${customizerState.primary}, secondary ${customizerState.secondary}`;
+  summary.textContent =
+    `${design.label}, primary ${customizerState.primary}, ` +
+    `secondary ${customizerState.secondary}, background ${customizerState.background}`;
 }
 
 function updateCustomizerDesign(designKey) {
@@ -522,6 +530,8 @@ function wireCustomizerModal() {
   const primaryColorHex = document.getElementById("primaryColorHex");
   const secondaryColorInput = document.getElementById("secondaryColorInput");
   const secondaryColorHex = document.getElementById("secondaryColorHex");
+  const backgroundColorInput = document.getElementById("backgroundColorInput");
+  const backgroundColorHex = document.getElementById("backgroundColorHex");
   if (
     !modal ||
     !openBtn ||
@@ -532,7 +542,9 @@ function wireCustomizerModal() {
     !primaryColorInput ||
     !primaryColorHex ||
     !secondaryColorInput ||
-    !secondaryColorHex
+    !secondaryColorHex ||
+    !backgroundColorInput ||
+    !backgroundColorHex
   ) {
     return;
   }
@@ -568,9 +580,11 @@ function wireCustomizerModal() {
 
   primaryColorInput.addEventListener("input", () => setCustomizerColor("primary", primaryColorInput.value));
   secondaryColorInput.addEventListener("input", () => setCustomizerColor("secondary", secondaryColorInput.value));
+  backgroundColorInput.addEventListener("input", () => setCustomizerColor("background", backgroundColorInput.value));
 
   primaryColorHex.addEventListener("input", () => handleHexInput("primary", primaryColorHex));
   secondaryColorHex.addEventListener("input", () => handleHexInput("secondary", secondaryColorHex));
+  backgroundColorHex.addEventListener("input", () => handleHexInput("background", backgroundColorHex));
 
   primaryColorHex.addEventListener("blur", () => {
     primaryColorHex.value = customizerState.primary;
@@ -578,10 +592,17 @@ function wireCustomizerModal() {
   secondaryColorHex.addEventListener("blur", () => {
     secondaryColorHex.value = customizerState.secondary;
   });
+  backgroundColorHex.addEventListener("blur", () => {
+    backgroundColorHex.value = customizerState.background;
+  });
 
   copyBtn.addEventListener("click", async () => {
     const design = CUSTOMIZER_DESIGNS[customizerState.design] || CUSTOMIZER_DESIGNS.white;
-    const text = `Custom BMB logo request: ${design.label}; Primary ${customizerState.primary}; Secondary ${customizerState.secondary}`;
+    const text =
+      `Custom BMB logo request: ${design.label}; ` +
+      `Primary ${customizerState.primary}; ` +
+      `Secondary ${customizerState.secondary}; ` +
+      `Background ${customizerState.background}`;
 
     try {
       await navigator.clipboard.writeText(text);
@@ -594,6 +615,7 @@ function wireCustomizerModal() {
   updateCustomizerDesign(customizerState.design);
   setCustomizerColor("primary", customizerState.primary);
   setCustomizerColor("secondary", customizerState.secondary);
+  setCustomizerColor("background", customizerState.background);
 }
 
 function wireCopyEmail() {

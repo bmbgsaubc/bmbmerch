@@ -428,7 +428,7 @@
     <div class="modal-backdrop" id="customizerModalBackdrop"></div>
     <section class="modal-card customizer-modal-card" role="dialog" aria-modal="true" aria-labelledby="customizerModalTitle">
       <h2 id="customizerModalTitle">Customize your BMB logo colours</h2>
-      <p class="modal-sub">Choose a t-shirt base, set the two logo colours, and copy the finished colour details into your order email.</p>
+      <p class="modal-sub">Choose a t-shirt base, set the logo colours, and copy the finished colour details into your order email.</p>
 
       <div class="customizer-layout">
         <div class="customizer-controls">
@@ -457,9 +457,17 @@
             </div>
           </div>
 
+          <div class="customizer-field">
+            <label class="customizer-label" for="backgroundColorInput">Background colour</label>
+            <div class="customizer-color-row">
+              <input id="backgroundColorInput" class="customizer-color-input" name="backgroundColor" type="color" value="#FFFFFF" />
+              <input id="backgroundColorHex" class="customizer-text-input" name="backgroundColorHex" type="text" value="#FFFFFF" inputmode="text" spellcheck="false" />
+            </div>
+          </div>
+
           <div class="customizer-summary">
             <p class="customizer-label">Ready to order</p>
-            <p id="customizerSummaryText">White tee, primary #002145, secondary #A89565</p>
+            <p id="customizerSummaryText">White tee, primary #000000, secondary #C0C0C0, background #FFFFFF</p>
           </div>
         </div>
 
@@ -469,7 +477,7 @@
             <span class="shirt-preview-tag" id="designPreviewLabel">White tee</span>
             <div class="shirt-preview-logo" id="logoPreview" aria-label="Live BMB logo preview"></div>
           </div>
-          <p class="preview-note" id="designPreviewName">Classic white tee base with a custom two-colour logo.</p>
+          <p class="preview-note" id="designPreviewName">Classic white tee base with a custom circular crest logo.</p>
         </div>
       </div>
 
