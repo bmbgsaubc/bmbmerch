@@ -428,10 +428,18 @@
     <div class="modal-backdrop" id="customizerModalBackdrop"></div>
     <section class="modal-card customizer-modal-card" role="dialog" aria-modal="true" aria-labelledby="customizerModalTitle">
       <h2 id="customizerModalTitle">Customize your BMB logo colours</h2>
-      <p class="modal-sub">Choose a t-shirt base, set the logo colours, and copy the finished colour details into your order email.</p>
+      <p class="modal-sub">Choose a logo style, pick a t-shirt base, set the editable colours, then add the finished custom tee to your order.</p>
 
       <div class="customizer-layout">
         <div class="customizer-controls">
+          <div class="customizer-field">
+            <p class="customizer-label">Logo style</p>
+            <div class="customizer-logo-options" id="customizerLogoOptions">
+              <button class="design-option is-selected" type="button" data-logo="circle" aria-pressed="true">Circle crest</button>
+              <button class="design-option" type="button" data-logo="clear" aria-pressed="false">Clear with text</button>
+            </div>
+          </div>
+
           <div class="customizer-field">
             <p class="customizer-label">T-shirt design</p>
             <div class="customizer-designs" id="customizerDesigns">
@@ -444,20 +452,20 @@
           <div class="customizer-field">
             <label class="customizer-label" for="primaryColorInput">Primary colour</label>
             <div class="customizer-color-row">
-              <input id="primaryColorInput" class="customizer-color-input" name="primaryColor" type="color" value="#002145" />
-              <input id="primaryColorHex" class="customizer-text-input" name="primaryColorHex" type="text" value="#002145" inputmode="text" spellcheck="false" />
+              <input id="primaryColorInput" class="customizer-color-input" name="primaryColor" type="color" value="#000000" />
+              <input id="primaryColorHex" class="customizer-text-input" name="primaryColorHex" type="text" value="#000000" inputmode="text" spellcheck="false" />
             </div>
           </div>
 
           <div class="customizer-field">
             <label class="customizer-label" for="secondaryColorInput">Secondary colour</label>
             <div class="customizer-color-row">
-              <input id="secondaryColorInput" class="customizer-color-input" name="secondaryColor" type="color" value="#A89565" />
-              <input id="secondaryColorHex" class="customizer-text-input" name="secondaryColorHex" type="text" value="#A89565" inputmode="text" spellcheck="false" />
+              <input id="secondaryColorInput" class="customizer-color-input" name="secondaryColor" type="color" value="#C0C0C0" />
+              <input id="secondaryColorHex" class="customizer-text-input" name="secondaryColorHex" type="text" value="#C0C0C0" inputmode="text" spellcheck="false" />
             </div>
           </div>
 
-          <div class="customizer-field">
+          <div class="customizer-field" id="backgroundColorField">
             <label class="customizer-label" for="backgroundColorInput">Background colour</label>
             <div class="customizer-color-row">
               <input id="backgroundColorInput" class="customizer-color-input" name="backgroundColor" type="color" value="#FFFFFF" />
@@ -465,9 +473,30 @@
             </div>
           </div>
 
+          <div class="customizer-order-grid">
+            <div class="customizer-field">
+              <p class="customizer-label">Size</p>
+              <div class="size-options" id="customizerSizeOptions">
+                <button class="size-option" type="button" data-size="S">S</button>
+                <button class="size-option" type="button" data-size="M">M</button>
+                <button class="size-option" type="button" data-size="L">L</button>
+                <button class="size-option" type="button" data-size="XL">XL</button>
+              </div>
+            </div>
+
+            <div class="customizer-field">
+              <p class="customizer-label">Quantity</p>
+              <div class="quantity-control" id="customizerQuantity" aria-label="Custom tee quantity">
+                <button class="qty-btn" type="button" data-qty-action="decrease" aria-label="Decrease quantity">−</button>
+                <span class="quantity-value" aria-live="polite">1</span>
+                <button class="qty-btn" type="button" data-qty-action="increase" aria-label="Increase quantity">+</button>
+              </div>
+            </div>
+          </div>
+
           <div class="customizer-summary">
             <p class="customizer-label">Ready to order</p>
-            <p id="customizerSummaryText">White tee, primary #000000, secondary #C0C0C0, background #FFFFFF</p>
+            <p id="customizerSummaryText">Circle crest, White tee, choose a size, qty 1, primary #000000, secondary #C0C0C0, background #FFFFFF</p>
           </div>
         </div>
 
@@ -477,7 +506,7 @@
             <span class="shirt-preview-tag" id="designPreviewLabel">White tee</span>
             <div class="shirt-preview-logo" id="logoPreview" aria-label="Live BMB logo preview"></div>
           </div>
-          <p class="preview-note" id="designPreviewName">Classic white tee base with a custom circular crest logo.</p>
+          <p class="preview-note" id="designPreviewName">Circular crest logo on a classic white tee, previewed live.</p>
         </div>
       </div>
 
@@ -485,7 +514,7 @@
 
       <div class="modal-actions">
         <button class="btn btn-ghost" id="customizerCloseBtn" type="button">Close</button>
-        <button class="btn btn-primary" id="customizerCopyBtn" type="button">Copy Colour Details</button>
+        <button class="btn btn-primary" id="customizerAddBtn" type="button">Add to Order</button>
       </div>
     </section>
   </div>

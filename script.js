@@ -1,29 +1,58 @@
 // ====== Configure contact + Sheets webhook ======
 const MERCH_EMAIL = "bmbgsa.ubc@gmail.com";
 const SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwU8CYQKz8inkdJMjQbVAMgywphFbMDDq46xpUnFkfZlutQf9dgRISSTXhHqHlPPQs/exec";
-const LOGO_PREVIEW_URL = "assets/Circle_Customizable.svg";
-const CUSTOMIZER_LOGO_GROUPS = {
-  primary: "#g1",
-  secondary: "#g2",
-  background: "#g6",
+const CUSTOMIZER_LOGOS = {
+  circle: {
+    label: "Circle crest",
+    itemName: "Custom Circular Crest Tee",
+    path: "assets/Circle_Customizable.svg",
+    note: "Circular crest logo with editable primary, secondary, and background colours.",
+    groups: {
+      primary: "#g1",
+      secondary: "#g2",
+      background: "#g6",
+    },
+    defaults: {
+      primary: "#000000",
+      secondary: "#C0C0C0",
+      background: "#FFFFFF",
+    },
+  },
+  clear: {
+    label: "Clear with text",
+    itemName: "Custom Clear-with-Text Tee",
+    path: "assets/clear-withtext.svg",
+    note: "Clear-with-text logo with editable primary and secondary colour groups.",
+    groups: {
+      primary: "#layer3",
+      secondary: "#layer2",
+    },
+    defaults: {
+      primary: "#005785",
+      secondary: "#005785",
+      background: "#FFFFFF",
+    },
+  },
 };
+const CUSTOMIZER_ITEM_PRICE = 15;
 const CUSTOMIZER_DESIGNS = {
   white: {
     label: "White tee",
-    note: "Classic white tee base with the customizable circular crest previewed live.",
+    note: "Classic white tee base for your selected custom logo.",
   },
   black: {
     label: "Black tee",
-    note: "Dark tee base that makes metallic or high-contrast crest colours stand out.",
+    note: "Dark tee base that makes brighter and higher-contrast logo colours stand out.",
   },
   beige: {
     label: "Beige tee",
-    note: "Warm neutral tee base for softer or vintage-inspired crest colourways.",
+    note: "Warm neutral tee base for softer or vintage-inspired logo colourways.",
   },
 };
 
 const cart = new Map();
 const customizerState = {
+  logo: "circle",
   design: "white",
   primary: "#000000",
   secondary: "#C0C0C0",
@@ -31,7 +60,7 @@ const customizerState = {
   svg: null,
 };
 
-let customizerSvgTemplate = null;
+const customizerSvgTemplates = new Map();
 
 function buildMailto(subject, body) {
   return (
@@ -74,7 +103,8 @@ function buildCartOrderTemplate(items) {
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const lines = items.map((item) => {
     const priceLine = item.price ? ` · ${formatPrice(item.price * item.quantity)}` : "";
-    return `- ${item.name} — Size: ${item.size} · Qty: ${item.quantity}${priceLine}`;
+    const detailsLine = item.details ? ` · ${item.details}` : "";
+    return `- ${item.name} — Size: ${item.size} · Qty: ${item.quantity}${detailsLine}${priceLine}`;
   });
   const totalLine = total ? `Estimated total: ${formatPrice(total)}` : "";
   return [
@@ -142,7 +172,8 @@ function renderCart() {
       const details = document.createElement("span");
       details.className = "cart-item-details";
       const priceLine = item.price ? ` · ${formatPrice(item.price * item.quantity)}` : "";
-      details.textContent = `Size: ${item.size} · Qty: ${item.quantity}${priceLine}`;
+      const detailsLine = item.details ? ` · ${item.details}` : "";
+      details.textContent = `Size: ${item.size} · Qty: ${item.quantity}${detailsLine}${priceLine}`;
 
       li.appendChild(title);
       li.appendChild(details);
@@ -156,14 +187,22 @@ function renderCart() {
   totalEl.textContent = total ? `Total: ${formatPrice(total)}` : "";
 }
 
-function addToCart(item, size, quantity, price) {
-  const key = `${item}__${size}`;
+function addToCart(item, size, quantity, price, meta = {}) {
+  const variantKey = meta.variantKey ? `__${meta.variantKey}` : "";
+  const key = `${item}__${size}${variantKey}`;
   const existing = cart.get(key);
   if (existing) {
     existing.quantity += quantity;
     cart.set(key, existing);
   } else {
-    cart.set(key, { name: item, size, quantity, price });
+    cart.set(key, {
+      name: item,
+      size,
+      quantity,
+      price,
+      details: meta.details || "",
+      sheetItemName: meta.sheetItemName || item,
+    });
   }
   renderCart();
   updateEmailLinks();
@@ -172,10 +211,11 @@ function addToCart(item, size, quantity, price) {
 function buildSheetRows(customer, items) {
   const groupedByItem = new Map();
   items.forEach((item) => {
-    if (!groupedByItem.has(item.name)) {
-      groupedByItem.set(item.name, { S: 0, M: 0, L: 0, XL: 0 });
+    const itemName = item.sheetItemName || item.name;
+    if (!groupedByItem.has(itemName)) {
+      groupedByItem.set(itemName, { S: 0, M: 0, L: 0, XL: 0 });
     }
-    const group = groupedByItem.get(item.name);
+    const group = groupedByItem.get(itemName);
     if (Object.hasOwn(group, item.size)) {
       group[item.size] += item.quantity;
     }
@@ -422,16 +462,43 @@ function applyColorToLogoGroup(group, color) {
 function applyCustomizerLogoColors() {
   if (!customizerState.svg) return;
 
-  Object.entries(CUSTOMIZER_LOGO_GROUPS).forEach(([role, selector]) => {
+  const logo = getCustomizerLogoConfig();
+  Object.entries(logo.groups).forEach(([role, selector]) => {
     const group = customizerState.svg.querySelector(selector);
     applyColorToLogoGroup(group, customizerState[role]);
   });
 }
 
-async function loadCustomizerLogoSvg() {
-  if (customizerSvgTemplate) return customizerSvgTemplate.cloneNode(true);
+function getCustomizerLogoConfig(logoKey = customizerState.logo) {
+  return CUSTOMIZER_LOGOS[logoKey] || CUSTOMIZER_LOGOS.circle;
+}
 
-  const response = await fetch(LOGO_PREVIEW_URL);
+function syncCustomizerColorInputs(role) {
+  const colorInput = document.getElementById(`${role}ColorInput`);
+  const hexInput = document.getElementById(`${role}ColorHex`);
+  if (colorInput) colorInput.value = customizerState[role];
+  if (hexInput) hexInput.value = customizerState[role];
+}
+
+function updateCustomizerPreviewDetails() {
+  const design = CUSTOMIZER_DESIGNS[customizerState.design] || CUSTOMIZER_DESIGNS.white;
+  const logo = getCustomizerLogoConfig();
+  const shirtPreview = document.getElementById("shirtPreview");
+  const previewLabel = document.getElementById("designPreviewLabel");
+  const previewName = document.getElementById("designPreviewName");
+
+  if (shirtPreview) shirtPreview.dataset.design = customizerState.design;
+  if (previewLabel) previewLabel.textContent = design.label;
+  if (previewName) previewName.textContent = `${logo.note} ${design.note}`;
+}
+
+async function loadCustomizerLogoSvg(logoKey = customizerState.logo) {
+  const logo = getCustomizerLogoConfig(logoKey);
+  if (customizerSvgTemplates.has(logo.path)) {
+    return customizerSvgTemplates.get(logo.path).cloneNode(true);
+  }
+
+  const response = await fetch(logo.path);
   if (!response.ok) {
     throw new Error("Could not load the logo preview.");
   }
@@ -447,17 +514,25 @@ async function loadCustomizerLogoSvg() {
   svg.removeAttribute("height");
   svg.setAttribute("aria-hidden", "true");
   svg.setAttribute("focusable", "false");
-  customizerSvgTemplate = document.importNode(svg, true);
-  return customizerSvgTemplate.cloneNode(true);
+  const template = document.importNode(svg, true);
+  customizerSvgTemplates.set(logo.path, template);
+  return template.cloneNode(true);
 }
 
-async function ensureCustomizerLogoMounted() {
+async function ensureCustomizerLogoMounted(forceReload = false) {
   const preview = document.getElementById("logoPreview");
-  if (!preview || customizerState.svg) return;
+  if (!preview) return;
+  if (forceReload) {
+    customizerState.svg = null;
+    preview.innerHTML = "";
+  }
+  if (customizerState.svg) return;
 
+  const requestedLogo = customizerState.logo;
   preview.classList.add("is-loading");
   try {
-    const svg = await loadCustomizerLogoSvg();
+    const svg = await loadCustomizerLogoSvg(requestedLogo);
+    if (requestedLogo !== customizerState.logo) return;
     preview.innerHTML = "";
     preview.appendChild(svg);
     customizerState.svg = svg;
@@ -474,10 +549,18 @@ function updateCustomizerSummary() {
   const summary = document.getElementById("customizerSummaryText");
   if (!summary) return;
 
-  const design = CUSTOMIZER_DESIGNS[customizerState.design] || CUSTOMIZER_DESIGNS.white;
+  const selection = getCustomizerCartSelection();
+  const sizeText = selection.size ? `size ${selection.size}` : "choose a size";
+  const colorDetails = [
+    `primary ${selection.primary}`,
+    `secondary ${selection.secondary}`,
+  ];
+  if (selection.background) {
+    colorDetails.push(`background ${selection.background}`);
+  }
   summary.textContent =
-    `${design.label}, primary ${customizerState.primary}, ` +
-    `secondary ${customizerState.secondary}, background ${customizerState.background}`;
+    `${selection.logoLabel}, ${selection.designLabel}, ${sizeText}, qty ${selection.quantity}, ` +
+    colorDetails.join(", ");
 }
 
 function updateCustomizerDesign(designKey) {
@@ -486,21 +569,50 @@ function updateCustomizerDesign(designKey) {
 
   customizerState.design = designKey;
 
-  const shirtPreview = document.getElementById("shirtPreview");
-  const previewLabel = document.getElementById("designPreviewLabel");
-  const previewName = document.getElementById("designPreviewName");
-
-  if (shirtPreview) shirtPreview.dataset.design = designKey;
-  if (previewLabel) previewLabel.textContent = design.label;
-  if (previewName) previewName.textContent = design.note;
-
-  document.querySelectorAll(".design-option").forEach((button) => {
+  document.querySelectorAll("#customizerDesigns .design-option").forEach((button) => {
     const isSelected = button.dataset.design === designKey;
     button.classList.toggle("is-selected", isSelected);
     button.setAttribute("aria-pressed", isSelected ? "true" : "false");
   });
 
+  updateCustomizerPreviewDetails();
   updateCustomizerSummary();
+}
+
+function updateCustomizerLogo(logoKey) {
+  const nextLogoKey = CUSTOMIZER_LOGOS[logoKey] ? logoKey : "circle";
+  const logo = getCustomizerLogoConfig(nextLogoKey);
+  const preview = document.getElementById("logoPreview");
+  const backgroundField = document.getElementById("backgroundColorField");
+
+  customizerState.logo = nextLogoKey;
+  customizerState.svg = null;
+
+  Object.entries({
+    primary: logo.defaults.primary,
+    secondary: logo.defaults.secondary,
+    background: logo.defaults.background || "#FFFFFF",
+  }).forEach(([role, value]) => {
+    customizerState[role] = value;
+    syncCustomizerColorInputs(role);
+  });
+
+  document.querySelectorAll("#customizerLogoOptions .design-option").forEach((button) => {
+    const isSelected = button.dataset.logo === nextLogoKey;
+    button.classList.toggle("is-selected", isSelected);
+    button.setAttribute("aria-pressed", isSelected ? "true" : "false");
+  });
+
+  if (backgroundField) {
+    backgroundField.hidden = !logo.groups.background;
+  }
+  if (preview) {
+    preview.innerHTML = "";
+  }
+
+  updateCustomizerPreviewDetails();
+  updateCustomizerSummary();
+  void ensureCustomizerLogoMounted(true);
 }
 
 function setCustomizerColor(role, value) {
@@ -508,15 +620,43 @@ function setCustomizerColor(role, value) {
   if (!normalized) return false;
 
   customizerState[role] = normalized;
-
-  const colorInput = document.getElementById(`${role}ColorInput`);
-  const hexInput = document.getElementById(`${role}ColorHex`);
-  if (colorInput) colorInput.value = normalized;
-  if (hexInput) hexInput.value = normalized;
+  syncCustomizerColorInputs(role);
 
   applyCustomizerLogoColors();
   updateCustomizerSummary();
   return true;
+}
+
+function getCustomizerCartSelection() {
+  const logo = getCustomizerLogoConfig();
+  const design = CUSTOMIZER_DESIGNS[customizerState.design] || CUSTOMIZER_DESIGNS.white;
+  const sizeBtn = document.querySelector("#customizerSizeOptions .size-option.is-selected");
+  const quantityEl = document.querySelector("#customizerQuantity .quantity-value");
+  const quantity = Math.max(1, parseInt(quantityEl ? quantityEl.textContent.trim() : "1", 10) || 1);
+  const size = sizeBtn ? String(sizeBtn.dataset.size || "").trim() : "";
+  const detailParts = [
+    logo.label,
+    design.label,
+    `Primary ${customizerState.primary}`,
+    `Secondary ${customizerState.secondary}`,
+  ];
+
+  if (logo.groups.background) {
+    detailParts.push(`Background ${customizerState.background}`);
+  }
+
+  return {
+    logoKey: customizerState.logo,
+    logoLabel: logo.label,
+    itemName: logo.itemName,
+    designLabel: design.label,
+    size,
+    quantity,
+    details: detailParts.join(" · "),
+    primary: customizerState.primary,
+    secondary: customizerState.secondary,
+    background: logo.groups.background ? customizerState.background : "",
+  };
 }
 
 function wireCustomizerModal() {
@@ -524,12 +664,16 @@ function wireCustomizerModal() {
   const openBtn = document.getElementById("openCustomizerBtn");
   const closeBtn = document.getElementById("customizerCloseBtn");
   const backdrop = document.getElementById("customizerModalBackdrop");
-  const copyBtn = document.getElementById("customizerCopyBtn");
+  const addBtn = document.getElementById("customizerAddBtn");
   const status = document.getElementById("customizerStatus");
+  const logoOptions = document.getElementById("customizerLogoOptions");
+  const sizeGroup = document.getElementById("customizerSizeOptions");
+  const quantityControl = document.getElementById("customizerQuantity");
   const primaryColorInput = document.getElementById("primaryColorInput");
   const primaryColorHex = document.getElementById("primaryColorHex");
   const secondaryColorInput = document.getElementById("secondaryColorInput");
   const secondaryColorHex = document.getElementById("secondaryColorHex");
+  const backgroundColorField = document.getElementById("backgroundColorField");
   const backgroundColorInput = document.getElementById("backgroundColorInput");
   const backgroundColorHex = document.getElementById("backgroundColorHex");
   if (
@@ -537,12 +681,16 @@ function wireCustomizerModal() {
     !openBtn ||
     !closeBtn ||
     !backdrop ||
-    !copyBtn ||
+    !addBtn ||
     !status ||
+    !logoOptions ||
+    !sizeGroup ||
+    !quantityControl ||
     !primaryColorInput ||
     !primaryColorHex ||
     !secondaryColorInput ||
     !secondaryColorHex ||
+    !backgroundColorField ||
     !backgroundColorInput ||
     !backgroundColorHex
   ) {
@@ -564,6 +712,10 @@ function wireCustomizerModal() {
     if (normalized) setCustomizerColor(role, normalized);
   };
 
+  const clearStatus = () => {
+    status.textContent = "";
+  };
+
   openBtn.addEventListener("click", () => setOpen(true));
   closeBtn.addEventListener("click", () => setOpen(false));
   backdrop.addEventListener("click", () => setOpen(false));
@@ -574,17 +726,45 @@ function wireCustomizerModal() {
     }
   });
 
-  document.querySelectorAll(".design-option").forEach((button) => {
-    button.addEventListener("click", () => updateCustomizerDesign(button.dataset.design || "white"));
+  logoOptions.querySelectorAll(".design-option").forEach((button) => {
+    button.addEventListener("click", () => {
+      clearStatus();
+      updateCustomizerLogo(button.dataset.logo || "circle");
+    });
   });
 
-  primaryColorInput.addEventListener("input", () => setCustomizerColor("primary", primaryColorInput.value));
-  secondaryColorInput.addEventListener("input", () => setCustomizerColor("secondary", secondaryColorInput.value));
-  backgroundColorInput.addEventListener("input", () => setCustomizerColor("background", backgroundColorInput.value));
+  document.querySelectorAll("#customizerDesigns .design-option").forEach((button) => {
+    button.addEventListener("click", () => {
+      clearStatus();
+      updateCustomizerDesign(button.dataset.design || "white");
+    });
+  });
 
-  primaryColorHex.addEventListener("input", () => handleHexInput("primary", primaryColorHex));
-  secondaryColorHex.addEventListener("input", () => handleHexInput("secondary", secondaryColorHex));
-  backgroundColorHex.addEventListener("input", () => handleHexInput("background", backgroundColorHex));
+  primaryColorInput.addEventListener("input", () => {
+    clearStatus();
+    setCustomizerColor("primary", primaryColorInput.value);
+  });
+  secondaryColorInput.addEventListener("input", () => {
+    clearStatus();
+    setCustomizerColor("secondary", secondaryColorInput.value);
+  });
+  backgroundColorInput.addEventListener("input", () => {
+    clearStatus();
+    setCustomizerColor("background", backgroundColorInput.value);
+  });
+
+  primaryColorHex.addEventListener("input", () => {
+    clearStatus();
+    handleHexInput("primary", primaryColorHex);
+  });
+  secondaryColorHex.addEventListener("input", () => {
+    clearStatus();
+    handleHexInput("secondary", secondaryColorHex);
+  });
+  backgroundColorHex.addEventListener("input", () => {
+    clearStatus();
+    handleHexInput("background", backgroundColorHex);
+  });
 
   primaryColorHex.addEventListener("blur", () => {
     primaryColorHex.value = customizerState.primary;
@@ -596,26 +776,45 @@ function wireCustomizerModal() {
     backgroundColorHex.value = customizerState.background;
   });
 
-  copyBtn.addEventListener("click", async () => {
-    const design = CUSTOMIZER_DESIGNS[customizerState.design] || CUSTOMIZER_DESIGNS.white;
-    const text =
-      `Custom BMB logo request: ${design.label}; ` +
-      `Primary ${customizerState.primary}; ` +
-      `Secondary ${customizerState.secondary}; ` +
-      `Background ${customizerState.background}`;
+  sizeGroup.querySelectorAll(".size-option").forEach((button) => {
+    button.addEventListener("click", () => {
+      clearStatus();
+      updateCustomizerSummary();
+    });
+  });
 
-    try {
-      await navigator.clipboard.writeText(text);
-      status.textContent = "Colour details copied. Paste them into your order email.";
-    } catch {
-      window.prompt("Copy these colour details:", text);
+  quantityControl.querySelectorAll(".qty-btn").forEach((button) => {
+    button.addEventListener("click", () => {
+      clearStatus();
+      updateCustomizerSummary();
+    });
+  });
+
+  addBtn.addEventListener("click", () => {
+    const selection = getCustomizerCartSelection();
+    if (!selection.size) {
+      sizeGroup.classList.add("is-missing");
+      status.textContent = "Pick a size before adding this custom tee to your order.";
+      setTimeout(() => sizeGroup.classList.remove("is-missing"), 1200);
+      return;
     }
+
+    addToCart(selection.itemName, selection.size, selection.quantity, CUSTOMIZER_ITEM_PRICE, {
+      details: selection.details,
+      sheetItemName: `${selection.itemName} — ${selection.details}`,
+      variantKey: `${selection.logoKey}__${selection.details}`,
+    });
+
+    status.textContent = "Custom tee added to cart.";
+    const original = addBtn.textContent;
+    addBtn.textContent = "Added ✓";
+    setTimeout(() => {
+      addBtn.textContent = original;
+    }, 900);
   });
 
   updateCustomizerDesign(customizerState.design);
-  setCustomizerColor("primary", customizerState.primary);
-  setCustomizerColor("secondary", customizerState.secondary);
-  setCustomizerColor("background", customizerState.background);
+  updateCustomizerLogo(customizerState.logo);
 }
 
 function wireCopyEmail() {
